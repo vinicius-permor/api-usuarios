@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"os/user"
 
 	"github.com/gin-gonic/gin"
 

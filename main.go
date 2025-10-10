@@ -22,7 +22,10 @@ func main() {
 	}()
 
 	r := gin.Default()
-	routes.SetupRoutes(r)
+	if err := r.SetTrustedProxies([]string{"192.168.1.2"}); err != nil {
+		log.Printf("erro na checagem de proxy: %v", err)
+	}
+	routes.SetupRoutes(r, db)
 
 	if err := r.Run(":3333"); err != nil {
 		log.Printf("erro ao iniciar o sevidor verifique o erro e tente novamente: %v", err)
