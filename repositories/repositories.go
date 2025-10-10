@@ -61,3 +61,27 @@ func (r *UsersRepository) DeleteUser(id string) error {
 	_, err := r.db.Exec(statement, id)
 	return err
 }
+
+func (r *UsersRepository) ListallUsers() ([]models.Users, error) {
+	statement := "select id, name, email, password from users"
+
+	lineRows, err := r.db.Query(statement)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := lineRows.Close(); err != nil {
+			log.Printf("erro ao fechar o execucao listar todos os usuarios , verifique o erro e tente novamente: %v", err)
+		}
+	}()
+	users := []models.Users{}
+	for lineRows.Next() {
+		var user models.Users
+		err := lineRows.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
