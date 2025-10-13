@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"vinicius-permor/apiGin/models"
+	"vinicius-permor/apiGin/src/models"
 )
 
 type UsersRepository struct {

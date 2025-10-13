@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 
-	"vinicius-permor/apiGin/models"
-	"vinicius-permor/apiGin/repositories"
+	"vinicius-permor/apiGin/src/models"
+	"vinicius-permor/apiGin/src/repositories"
 )
 
 type UserService struct {

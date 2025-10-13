@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"vinicius-permor/apiGin/models"
-	"vinicius-permor/apiGin/services"
+	"vinicius-permor/apiGin/src/models"
+	"vinicius-permor/apiGin/src/services"
 )
 
 type UserControllers struct {
@@ -15,6 +15,16 @@ type UserControllers struct {
 
 func NewUserController(services *services.UserService) *UserControllers {
 	return &UserControllers{service: services}
+}
+
+func (usrControllers *UserControllers) Login(c *gin.Context) {
+	var users models.Users
+	if err := c.ShouldBindJSON(&users); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error(),
+		})
+		return
+	}
 }
 
 func (usrControllers *UserControllers) CreateUser(c *gin.Context) {

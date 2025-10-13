@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"vinicius-permor/apiGin/config"
-	"vinicius-permor/apiGin/routes"
+	"vinicius-permor/apiGin/src/config"
+	"vinicius-permor/apiGin/src/routes"
 
 	"github.com/gin-gonic/gin"
 )
