@@ -1,8 +1,12 @@
-CREATE TABLE clientes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    cpf VARCHAR(14),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE DATABASE IF NOT EXISTS users;
+USE users;
+
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users(
+  id int auto_increment primary key,
+  name varchar(255) not null,
+  email varchar(255) not null unique,
+  password varchar(100) not null
+)ENGINE=INNODB;
+

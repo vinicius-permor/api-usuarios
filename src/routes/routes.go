@@ -15,11 +15,10 @@ func SetupRoutes(r *gin.Engine, db *sql.DB) {
 	userServ := services.NewUserService(userRepo)
 	userCrontrol := controllers.NewUserController(userServ)
 
-	routesApi := r.Group("/api/v1")
-	users := routesApi.Group("/users")
+	users := r.Group("/users")
 	users.GET("", userCrontrol.ListAllUser)
 	users.GET("/:id", userCrontrol.SearchUser)
-	users.GET("", userCrontrol.CreateUser)
+	users.POST("", userCrontrol.CreateUser)
 	users.PUT("/:id", userCrontrol.UpadateUser)
 	users.DELETE("/:id", userCrontrol.DeleteUser)
 }
