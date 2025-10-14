@@ -15,6 +15,7 @@ func NewUserRepository(db *sql.DB) *UsersRepository {
 	return &UsersRepository{db: db}
 }
 
+// funcao Create de criacao de usuarios sera exportada para o pacote controllers
 func (r *UsersRepository) Create(user models.Users) (int64, error) {
 	statement := "insert into users (name , email, password) values (?,?,?)"
 	result, err := r.db.Exec(statement, user.Name, user.Email, user.Password)
@@ -28,8 +29,9 @@ func (r *UsersRepository) Create(user models.Users) (int64, error) {
 	return id, nil
 }
 
+// funcao SearchID de busca de clientes por id pode ser exportada para o pacote controllers
 func (r *UsersRepository) SearchID(id string) (*models.Users, error) {
-	statement := "select id , name , email from users where id = ?"
+	statement := "select * from users where id = ?"
 
 	user := &models.Users{}
 	err := r.db.QueryRow(statement, id).Scan(
@@ -50,18 +52,21 @@ func (r *UsersRepository) SearchID(id string) (*models.Users, error) {
 	return user, nil
 }
 
+// funcao UpdateID de atualizacao de usuarios sera exportada para o pacote controllers
 func (r *UsersRepository) UpdateID(id string, user *models.Users) error {
-	statement := "update set name = ?, email = ? , where id = ?"
-	_, err := r.db.Exec(statement, user.Name, user.Email, id)
+	statement := "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?"
+	_, err := r.db.Exec(statement, user.Name, user.Email, user.Password, id)
 	return err
 }
 
+// funcao DeleteUser que vai deletar o ususario sera exportada para o pacote controllers
 func (r *UsersRepository) DeleteUser(id string) error {
 	statement := "delete from users where id = ?"
 	_, err := r.db.Exec(statement, id)
 	return err
 }
 
+// funco ListallUsers de listagens de todos os ususaios ser exportada para o pacote controllers
 func (r *UsersRepository) ListallUsers() ([]models.Users, error) {
 	statement := "select id, name, email, password from users"
 

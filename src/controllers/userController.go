@@ -23,7 +23,6 @@ func (usrControllers *UserControllers) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"erro": err.Error(),
 		})
-		return
 	}
 }
 
@@ -48,6 +47,11 @@ func (usrControllers *UserControllers) CreateUser(c *gin.Context) {
 		"message": "cliente criado com sucesso",
 		"data":    users,
 	})
+	if err := users.Prepare("update"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error(),
+		})
+	}
 }
 
 func (usrControllers *UserControllers) ListAllUser(c *gin.Context) {
@@ -86,10 +90,23 @@ func (usrControllers *UserControllers) UpadateUser(c *gin.Context) {
 		})
 		return
 	}
+	err := usrControllers.service.UpdateUserID(id, &users)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"erro": err.Error(),
+		})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "usuario autalizado com sucesso",
 		"data":    id,
 	})
+
+	if err := users.Prepare("update"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error(),
+		})
+	}
 }
 
 func (usrControllers *UserControllers) DeleteUser(c *gin.Context) {
