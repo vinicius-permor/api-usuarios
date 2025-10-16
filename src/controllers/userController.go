@@ -10,20 +10,39 @@ import (
 )
 
 type UserControllers struct {
-	service *services.UserService
+	service     *services.UserService
+	authService *services.AuthService
 }
 
-func NewUserController(services *services.UserService) *UserControllers {
-	return &UserControllers{service: services}
+func NewUserController(services *services.UserService, authService *services.AuthService) *UserControllers {
+	return &UserControllers{service: services,
+		authService: authService,
+	}
 }
 
 func (usrControllers *UserControllers) Login(c *gin.Context) {
-	var users models.Users
-	if err := c.ShouldBindJSON(&users); err != nil {
+	var usersCredentials struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&usersCredentials); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"erro": err.Error(),
 		})
+		return
 	}
+
+	users, err := usrControllers.authService.Login(usersCredentials.Email, usersCredentials.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "login criado com sucesso",
+		"data":    users,
+	})
 }
 
 func (usrControllers *UserControllers) CreateUser(c *gin.Context) {
@@ -34,15 +53,24 @@ func (usrControllers *UserControllers) CreateUser(c *gin.Context) {
 		})
 		return
 	}
+	if err := users.Prepare("create"); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"erro": err.Error(),
+		})
+		return
+
+	}
 	id, err := usrControllers.service.CreateUser(&users)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"erro": err.Error(),
 		})
 		return
+
 	}
 
 	users.ID = int(id)
+	users.Password = "" // nao vai retornar a senha
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "cliente criado com sucesso",
 		"data":    users,
@@ -90,6 +118,12 @@ func (usrControllers *UserControllers) UpadateUser(c *gin.Context) {
 		})
 		return
 	}
+	if err := users.Prepare("update"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error(),
+		})
+		return
+	}
 	err := usrControllers.service.UpdateUserID(id, &users)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
@@ -102,11 +136,6 @@ func (usrControllers *UserControllers) UpadateUser(c *gin.Context) {
 		"data":    id,
 	})
 
-	if err := users.Prepare("update"); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"erro": err.Error(),
-		})
-	}
 }
 
 func (usrControllers *UserControllers) DeleteUser(c *gin.Context) {

@@ -31,14 +31,13 @@ func (r *UsersRepository) Create(user models.Users) (int64, error) {
 
 // funcao SearchID de busca de clientes por id pode ser exportada para o pacote controllers
 func (r *UsersRepository) SearchID(id string) (*models.Users, error) {
-	statement := "select * from users where id = ?"
+	statement := "select id ,name, email from users where id = ?"
 
 	user := &models.Users{}
 	err := r.db.QueryRow(statement, id).Scan(
 		&user.ID,
 		&user.Name,
 		&user.Email,
-		&user.Password,
 	)
 
 	if err == sql.ErrNoRows {
@@ -55,8 +54,9 @@ func (r *UsersRepository) SearchID(id string) (*models.Users, error) {
 // funcao UpdateID de atualizacao de usuarios sera exportada para o pacote controllers
 func (r *UsersRepository) UpdateID(id string, user *models.Users) error {
 	statement := "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?"
-	_, err := r.db.Exec(statement, user.Name, user.Email, user.Password, id)
+	_, err := r.db.Exec(statement, user.Name, user.Email, user.Password)
 	return err
+
 }
 
 // funcao DeleteUser que vai deletar o ususario sera exportada para o pacote controllers

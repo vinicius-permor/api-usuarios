@@ -14,13 +14,13 @@ type Users struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password, omitempty"` // nao vai retornar a senha no JSON
 }
 
 func (userModel *Users) Format(step string) error {
 	userModel.Name = strings.TrimSpace(userModel.Name)
 	userModel.Email = strings.TrimSpace(userModel.Email)
-	if step == "update" {
+	if step == "create" || step == "update" {
 		passHash, err := password.HashPassword(userModel.Password)
 		if err != nil {
 			return err
@@ -40,11 +40,14 @@ func (userModel *Users) Validade(step string) error {
 	}
 
 	if err := checkmail.ValidateFormat(userModel.Email); err != nil {
-		return errors.New("email e obrigatorio")
+		return errors.New("formato de email invalido")
 	}
 
-	if step == "update" && userModel.Password == "" {
+	if step == "create" && userModel.Password == "" {
 		return errors.New("a senha e obrigatoria")
+	}
+	if userModel.Password != "" && len(userModel.Password) < 8 {
+		return errors.New("senha deve ter  no minimo 8 caraciteres")
 	}
 	return nil
 }
@@ -53,7 +56,7 @@ func (userModel *Users) Prepare(step string) error {
 	if err := userModel.Validade(step); err != nil {
 		return err
 	}
-	if err := userModel.Validade(step); err != nil {
+	if err := userModel.Format(step); err != nil {
 		return err
 	}
 	return nil

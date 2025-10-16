@@ -13,7 +13,8 @@ import (
 func SetupRoutes(r *gin.Engine, db *sql.DB) {
 	userRepo := repositories.NewUserRepository(db)
 	userServ := services.NewUserService(userRepo)
-	userCrontrol := controllers.NewUserController(userServ)
+	userAuth := services.NewAuthService(userRepo)
+	userCrontrol := controllers.NewUserController(userServ, userAuth)
 
 	users := r.Group("/users")
 	users.GET("", userCrontrol.ListAllUser)
