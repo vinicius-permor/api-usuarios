@@ -6,6 +6,7 @@ require (
 	github.com/badoux/checkmail v1.2.4
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-sql-driver/mysql v1.9.3
+	github.com/jmoiron/sqlx v1.4.0
 	golang.org/x/crypto v0.43.0
 )
 

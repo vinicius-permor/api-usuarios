@@ -1,17 +1,16 @@
 package routes
 
 import (
-	"database/sql"
-
 	"vinicius-permor/apiGin/src/controllers"
 	"vinicius-permor/apiGin/src/repositories"
 	"vinicius-permor/apiGin/src/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 )
 
-func SetupRoutes(r *gin.Engine, db *sql.DB) {
-	userRepo := repositories.NewUserRepository(db)
+func SetupRoutes(r *gin.Engine, db *sqlx.DB) {
+	userRepo := repositories.NewUsersRepository(db)
 	userServ := services.NewUserService(userRepo)
 	userAuth := services.NewAuthService(userRepo)
 	userCrontrol := controllers.NewUserController(userServ, userAuth)

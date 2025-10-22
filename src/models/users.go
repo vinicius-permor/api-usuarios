@@ -11,10 +11,10 @@ import (
 
 // estrutura de Users para receber os dados no formato de JSON, sera exportado para o pacote repositories
 type Users struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password, omitempty"` // nao vai retornar a senha no JSON
+	ID       int    `db:"id" json:"id"`
+	Name     string `db:"id" json:"name"`
+	Email    string `db:"email" json:"email"`
+	Password string `db:"password" json:"password"`
 }
 
 func (userModel *Users) Format(step string) error {

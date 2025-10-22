@@ -16,7 +16,7 @@ func NewAuthService(userRepo *repositories.UsersRepository) *AuthService {
 }
 
 func (s *AuthService) Login(email, senha string) (*models.Users, error) {
-	user, err := s.userRepo.SearchID(email)
+	user, err := s.userRepo.SearchByEmail(email)
 	if err != nil {
 		return nil, err
 	}

@@ -15,7 +15,8 @@ type UserControllers struct {
 }
 
 func NewUserController(services *services.UserService, authService *services.AuthService) *UserControllers {
-	return &UserControllers{service: services,
+	return &UserControllers{
+		service:     services,
 		authService: authService,
 	}
 }
@@ -58,7 +59,6 @@ func (usrControllers *UserControllers) CreateUser(c *gin.Context) {
 			"erro": err.Error(),
 		})
 		return
-
 	}
 	id, err := usrControllers.service.CreateUser(&users)
 	if err != nil {
@@ -66,20 +66,15 @@ func (usrControllers *UserControllers) CreateUser(c *gin.Context) {
 			"erro": err.Error(),
 		})
 		return
-
 	}
 
 	users.ID = int(id)
 	users.Password = "" // nao vai retornar a senha
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "cliente criado com sucesso",
 		"data":    users,
 	})
-	if err := users.Prepare("update"); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"erro": err.Error(),
-		})
-	}
 }
 
 func (usrControllers *UserControllers) ListAllUser(c *gin.Context) {
@@ -97,15 +92,17 @@ func (usrControllers *UserControllers) ListAllUser(c *gin.Context) {
 
 func (usrControllers *UserControllers) SearchUser(c *gin.Context) {
 	id := c.Param("id")
-	users, err := usrControllers.service.SearchUserID(id)
+	user, err := usrControllers.service.SearchUserID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"erro": err.Error(),
 		})
 		return
 	}
+	user.Password = ""
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": users,
+		"data": user,
 	})
 }
 
@@ -135,7 +132,6 @@ func (usrControllers *UserControllers) UpadateUser(c *gin.Context) {
 		"message": "usuario autalizado com sucesso",
 		"data":    id,
 	})
-
 }
 
 func (usrControllers *UserControllers) DeleteUser(c *gin.Context) {

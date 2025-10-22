@@ -12,15 +12,13 @@ import (
 func main() {
 	db, err := config.Conn()
 	if err != nil {
-		log.Fatal("erro ao conectar com o banco de dados:", err)
+		log.Fatal("erro ao conectar com banco de dados", err)
 	}
-
 	defer func() {
 		if err := db.Close(); err != nil {
-			log.Printf("erro ao fechar banco de dados , verique o erro e tente novamente: %v", err)
+			log.Printf("erro ao fechar banco de dados: %v", err)
 		}
 	}()
-
 	r := gin.Default()
 	if err := r.SetTrustedProxies([]string{"192.168.1.2"}); err != nil {
 		log.Printf("erro na checagem de proxy: %v", err)

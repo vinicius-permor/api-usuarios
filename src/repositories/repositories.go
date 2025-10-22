@@ -2,21 +2,27 @@ package repositories
 
 import (
 	"database/sql"
-	"log"
+	"errors"
+
+	"github.com/jmoiron/sqlx"
 
 	"vinicius-permor/apiGin/src/models"
 )
 
 type UsersRepository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewUserRepository(db *sql.DB) *UsersRepository {
+func NewUsersRepository(db *sqlx.DB) *UsersRepository {
 	return &UsersRepository{db: db}
 }
 
-// funcao Create de criacao de usuarios sera exportada para o pacote controllers
-func (r *UsersRepository) Create(user models.Users) (int64, error) {
+//var db UsersRepository
+
+// function Create de criacao de usuarios sera export para o pacote controllers
+// a fuction Create esta usando o sqlx com execucao de query no banco de dados sera export no pcate controllers
+func (r *UsersRepository) Create(user *models.Users) (int64, error) {
+
 	statement := "insert into users (name , email, password) values (?,?,?)"
 	result, err := r.db.Exec(statement, user.Name, user.Email, user.Password)
 	if err != nil {
@@ -24,69 +30,55 @@ func (r *UsersRepository) Create(user models.Users) (int64, error) {
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return 0, nil
+		return 0, err
+
 	}
 	return id, nil
 }
 
 // funcao SearchID de busca de clientes por id pode ser exportada para o pacote controllers
 func (r *UsersRepository) SearchID(id string) (*models.Users, error) {
-	statement := "select id ,name, email from users where id = ?"
-
 	user := &models.Users{}
-	err := r.db.QueryRow(statement, id).Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-	)
-
+	statement := "select id ,name, email from users where id = ?"
+	err := r.db.Get(user, statement, id)
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return nil, errors.New("ususario nao encontrado")
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
 	return user, nil
 }
 
 // funcao UpdateID de atualizacao de usuarios sera exportada para o pacote controllers
 func (r *UsersRepository) UpdateID(id string, user *models.Users) error {
-	statement := "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?"
-	_, err := r.db.Exec(statement, user.Name, user.Email, user.Password)
-	return err
 
+	statement := "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?"
+	_, err := r.db.Exec(statement, user.Name, user.Email, user.Password, id)
+	return err
 }
 
 // funcao DeleteUser que vai deletar o ususario sera exportada para o pacote controllers
 func (r *UsersRepository) DeleteUser(id string) error {
+
 	statement := "delete from users where id = ?"
 	_, err := r.db.Exec(statement, id)
 	return err
+
 }
 
-// funco ListallUsers de listagens de todos os ususaios ser exportada para o pacote controllers
-func (r *UsersRepository) ListallUsers() ([]models.Users, error) {
+// func ListallUsers de listagens de todos os ususaios ser exportada para o pacote controllers
+func (r *UsersRepository) ListAllUsers() ([]models.Users, error) {
+	var user []models.Users
 	statement := "select id, name, email, password from users"
+	err := r.db.Select(&user, statement)
+	return nil, err
+}
 
-	lineRows, err := r.db.Query(statement)
+func (r *UsersRepository) SearchByEmail(email string) (*models.Users, error) {
+	user := &models.Users{}
+	statement := "SELECT id, name, email, password FROM users WHERE email = ?"
+	err := r.db.Get(user, statement, email)
 	if err != nil {
 		return nil, err
+
 	}
-	defer func() {
-		if err := lineRows.Close(); err != nil {
-			log.Printf("erro ao fechar o execucao listar todos os usuarios , verifique o erro e tente novamente: %v", err)
-		}
-	}()
-	users := []models.Users{}
-	for lineRows.Next() {
-		var user models.Users
-		err := lineRows.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-	return users, nil
+	return user, nil
 }
